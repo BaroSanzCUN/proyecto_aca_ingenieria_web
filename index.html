@@ -3,40 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous"></script>
+    <title>Proyecto ACA</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/tabler-icons.min.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/tabler-icons@1.35.0/icons-react/dist/index.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabler-icons@1.35.0/iconfont/tabler-icons.min.css">
     <script src="js/main.js"></script>
 </head>
+<style>
+    #header_tabs .active{
+        color:#0d6efd !important
+    }
+    .datatable_div tfoot {
+        display: table-header-group !important;
+    }
+</style>
 <body>
-    <div class="btn-group mt-4 mx-4 " id="botones_agenda" role="group" aria-label="Basic radio toggle button group">
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-        <label class="btn btn-outline-primary" for="btnradio1">Servicios</label>
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-        <label class="btn btn-outline-primary" for="btnradio2">Empleados</label>
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-        <label class="btn btn-outline-primary" for="btnradio3">Usuarios</label>
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
-        <label class="btn btn-outline-primary" for="btnradio4">Agenda</label>
-    </div>
-
-      <div class="container mt-4 mx-5">
-        <div class="row">
-            <div class="col">
-                <div class="card" style="width: 18rem;">
-                    <div class="card-body">
-                      <h5 class="card-title">Servicio 1</h5>
-                        <p class="card-text">Descripcion del servicio 1</p>
-                        <a href="#" class="btn btn-primary">Ver detalles</a>
-                    </div>
-                
-                </div>
+    <div class="container-fluid p-0">
+        <div class="bg-primary d-flex" id="header_tabs">
+            <div class="border-0 col-auto nav nav-tabs p-0" id="nav-tab" role="tablist">
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3 active" id="btn_agenda" data-bs-toggle="tab" data-bs-target="#nav-agenda" type="button" role="tab" aria-controls="nav-agenda" aria-selected="true">Agenda</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_servicios" data-bs-toggle="tab" data-bs-target="#nav-servicios" type="button" role="tab" aria-controls="nav-servicios" aria-selected="false">Servicios</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_empleados" data-bs-toggle="tab" data-bs-target="#nav-empleados" type="button" role="tab" aria-controls="nav-empleados" aria-selected="false">Empleados</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_usuarios" data-bs-toggle="tab" data-bs-target="#nav-usuarios" type="button" role="tab" aria-controls="nav-usuarios" aria-selected="false">Usuarios</button>
             </div>
         </div>
     </div>
+    <section class="container mt-4">
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-agenda" role="tabpanel" aria-labelledby="btn_agenda">
+                <h1>Agenda</h1>
+                <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_agenda"></table>
+              </div>
+            <div class="tab-pane fade" id="nav-servicios" role="tabpanel" aria-labelledby="btn_servicios">
+                <div class="d-flex justify-content-evenly">
+                   <h1>Servicios</h1>
+                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Nuevo</button>
+                </div>
+                <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_servicios"></table>
+
+            </div>
+            <div class="tab-pane fade" id="nav-empleados" role="tabpanel" aria-labelledby="btn_empleados">
+                <h1>Empleados</h1>
+                <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_empleados"></table>
+
+            </div>
+            <div class="tab-pane fade" id="nav-usuarios" role="tabpanel" aria-labelledby="btn_usuarios">
+                <h1>Usuarios</h1>
+                <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_usuarios"></table>
+
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              ...
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-html5-1.7.0/b-print-1.7.0/fc-3.3.2/fh-3.1.8/sl-1.3.3/datatables.min.css" />
+      <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-html5-1.7.0/b-print-1.7.0/fc-3.3.2/fh-3.1.8/sl-1.3.3/datatables.min.js"></script>
+      
+
+    
 
 </body>
 </html>
