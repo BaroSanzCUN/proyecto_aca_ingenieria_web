@@ -165,8 +165,16 @@ function loadDataAgenda() {
 
     const columDefs = [
         {
+            targets: [0, 1, 7],
+            className: 'text-center'
+        },
+        {
+            targets: [2, 3],
+            className: 'text-end'
+        },
+        {
             targets: '_all',
-            className: 'text-center align-middle'
+            className: 'align-middle'
         },
         {
             targets: 0,
@@ -175,9 +183,15 @@ function loadDataAgenda() {
             }
         },
         {
-            targets: 1,
+            targets: 1, //estado
             render: function(data, type, row, meta) {
-                return data;
+                let clas_bg = 'bg-primary';
+                if(data.toLowerCase() == 'cancelado') clas_bg = 'bg-danger';
+                if(data.toLowerCase() == 'reprogramado') clas_bg = 'bg-warning';
+                if(data.toLowerCase() == 'finalizado') clas_bg = 'bg-success';
+
+
+                return ` <span class="badge ${clas_bg} ">${data}</span>`
             }
         },
         {
@@ -205,14 +219,14 @@ function loadDataAgenda() {
             targets: 5, //empleado
             render: function(data, type, row, meta) {
                 const empleado = data_array.empleados.find(empleado => empleado.id == data) || {nombre: 'No encontrado', apellido: ''};
-                return `${empleado.nombre} ${empleado.apellido}`;
+                return `${empleado.nombre.toUpperCase()} ${empleado.apellido.toUpperCase()}`;
             }
         },
         {
             targets: 6, //usuario
             render: function(data, type, row, meta) {
                 const usuario = data_array.usuarios.find(usuario => usuario.id == data) || {nombre: 'No encontrado', apellido: ''};
-                return `${usuario.nombre} ${usuario.apellido}`;
+                return `${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}`;
             }
         },
         {
@@ -235,7 +249,7 @@ function loadDataAgenda() {
 function loadDataEmpleados(){
     const id_table = 'table_empleados';
     const tableEmpleados = document.querySelector(`#${id_table}`);
-    const column_names = ['ID', 'Nombre', 'Apellido', 'Correo', 'Telefono', 'Acciones'];
+    const column_names = ['ID', 'Nombre', 'Apellido', 'Servicio', 'Telefono', 'Acciones'];
     createTablaSelect(column_names, id_table);
 
     if(tableEmpleados.querySelector('tbody')) return;
@@ -250,32 +264,40 @@ function loadDataEmpleados(){
         {data: 'id'},
         {data: 'nombre'},
         {data: 'apellido'},
-        {data: 'correo'},
+        {data: 'servicio'},
         {data: 'telefono'},
         {data: 'id'}
     ];
 
     const columDefs = [
         {
+            targets: [0, 3, 5],
+            className: 'text-center'
+        },
+        {
+            targets: 4,
+            className: 'text-end'
+        },
+        {
             targets: '_all',
-            className: 'text-center align-middle'
+            className: 'align-middle'
         },
         {
             targets: 0,
             render: function(data, type, row, meta) {
-                return data;
+                return data;           
             }
         },
         {
             targets: 1,
             render: function(data, type, row, meta) {
-                return data;
+                return data.toUpperCase();
             }
         },
         {
             targets: 2,
             render: function(data, type, row, meta) {
-                return data;
+                return data.toUpperCase();
             }
         },
         {
@@ -321,14 +343,22 @@ function loadDataServicios(){
         {data: 'id'},
         {data: 'servicio'},
         {data: 'descripcion'},
-        {data: 'precio'},
+        {data: 'valor'},
         {data: 'id'}
     ];
 
     const columDefs = [
         {
+            targets: [0, 4],
+            className: 'text-center'
+        },
+        {
+            targets: 3,
+            className: 'text-end'
+        },
+        {
             targets: '_all',
-            className: 'text-center align-middle'
+            className: 'align-middle'
         },
         {
             targets: 0,
@@ -349,9 +379,12 @@ function loadDataServicios(){
             }
         },
         {
-            targets: 3,
+            targets: 3, //valor - precio
             render: function(data, type, row, meta) {
-                return data;
+                const precioCOP = new Intl.NumberFormat('es-CO', {style: 'currency', currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0}).format(data) || 0;
+                return precioCOP;
             }
         },
         {
@@ -392,8 +425,16 @@ function loadDataUsuarios(){
 
     const columDefs = [
         {
+            targets: [0, 5],
+            className: 'text-center'
+        },
+        {
+            targets: 4,
+            className: 'text-end'
+        },
+        {
             targets: '_all',
-            className: 'text-center align-middle'
+            className: 'align-middle'
         },
         {
             targets: 0,
@@ -404,13 +445,13 @@ function loadDataUsuarios(){
         {
             targets: 1,
             render: function(data, type, row, meta) {
-                return data;
+                return data.toUpperCase();
             }
         },
         {
             targets: 2,
             render: function(data, type, row, meta) {
-                return data;
+                return data.toUpperCase();
             }
         },
         {
