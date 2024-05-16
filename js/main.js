@@ -1,4 +1,3 @@
-
 let dataTable_all_btn = [
     {
         extend: "pageLength",
