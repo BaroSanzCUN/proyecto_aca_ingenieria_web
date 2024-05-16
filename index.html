@@ -32,51 +32,71 @@
         <div class="bg-primary d-flex" id="header_tabs">
             <div class="border-0 col-auto nav nav-tabs p-0" id="nav-tab" role="tablist">
                 <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3 active" id="btn_agenda" data-bs-toggle="tab" data-bs-target="#nav-agenda" type="button" role="tab" aria-controls="nav-agenda" aria-selected="true">Agenda</button>
-                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_servicios" data-bs-toggle="tab" data-bs-target="#nav-servicios" type="button" role="tab" aria-controls="nav-servicios" aria-selected="false">Servicios</button>
-                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_empleados" data-bs-toggle="tab" data-bs-target="#nav-empleados" type="button" role="tab" aria-controls="nav-empleados" aria-selected="false">Empleados</button>
-                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_usuarios" data-bs-toggle="tab" data-bs-target="#nav-usuarios" type="button" role="tab" aria-controls="nav-usuarios" aria-selected="false">Usuarios</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_servicios" data-bs-toggle="tab" data-bs-target="#nav-servicio" type="button" role="tab" aria-controls="nav-servicio" aria-selected="false">Servicios</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_empleados" data-bs-toggle="tab" data-bs-target="#nav-empleado" type="button" role="tab" aria-controls="nav-empleado" aria-selected="false">Empleados</button>
+                <button class="btn_tab fw-bold nav-link text-white px-1 px-sm-3" id="btn_usuarios" data-bs-toggle="tab" data-bs-target="#nav-usuario" type="button" role="tab" aria-controls="nav-usuario" aria-selected="false">Usuarios</button>
             </div>
         </div>
     </div>
     <section class="container mt-4">
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-agenda" role="tabpanel" aria-labelledby="btn_agenda">
-                <h1>Agenda</h1>
+                <div class="d-flex justify-content-evenly">
+                    <h1>Agenda</h1>
+                    <button type="button" class="btn btn-sm btn-teal rounded-circle px-3" data-new-add="modal" title="Agregar Agenda">
+                        <i class="ti ti-plus text-white"></i>
+                    </button>
+                </div>
+                
                 <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_agenda"></table>
               </div>
-            <div class="tab-pane fade" id="nav-servicios" role="tabpanel" aria-labelledby="btn_servicios">
+            <div class="tab-pane fade" id="nav-servicio" role="tabpanel" aria-labelledby="btn_servicios">
                 <div class="d-flex justify-content-evenly">
                    <h1>Servicios</h1>
-                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Nuevo</button>
+                    <button type="button" class="btn btn-sm btn-teal rounded-circle px-3" data-new-add="modal" title="Agregar Servicio">
+                        <i class="ti ti-plus text-white"></i>
+                    </button>
                 </div>
                 <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_servicios"></table>
 
             </div>
-            <div class="tab-pane fade" id="nav-empleados" role="tabpanel" aria-labelledby="btn_empleados">
-                <h1>Empleados</h1>
+            <div class="tab-pane fade" id="nav-empleado" role="tabpanel" aria-labelledby="btn_empleados">
+                <div class="d-flex justify-content-evenly">
+                    <h1>Empleados</h1>
+                    <button type="button" class="btn btn-sm btn-teal rounded-circle px-3" data-new-add="modal" title="Agregar Empleado">
+                        <i class="ti ti-plus text-white"></i>
+                    </button>
+                </div>
+                
                 <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_empleados"></table>
 
             </div>
-            <div class="tab-pane fade" id="nav-usuarios" role="tabpanel" aria-labelledby="btn_usuarios">
-                <h1>Usuarios</h1>
+            <div class="tab-pane fade" id="nav-usuario" role="tabpanel" aria-labelledby="btn_usuarios">
+                <div class="d-flex justify-content-evenly">
+                    <h1>Usuarios</h1>
+                    <button type="button" class="btn btn-sm btn-teal rounded-circle px-3" data-new-add="modal" title="Agregar Usuario">
+                        <i class="ti ti-plus text-white"></i>
+                    </button>
+                </div>
+                
                 <table class="dataTable datatable_div  table table-bordered table-hover table-responsive table-sm table-striped table_kardex w-100 m-0" id="table_usuarios"></table>
 
             </div>
         </div>
     </section>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="generalModal" tabindex="-1" aria-labelledby="generalModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <h5 class="modal-title" id="generalModalLabel">Modal title</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
               ...
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn" id="btnModalAction">Guardar</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
           </div>
         </div>

@@ -49,40 +49,356 @@ let dataTable_all_btn = [
     },
 ];
 
-let data_array = [
-    agenda = [],
-    empleados = [],
-    servicios = [],
-    usuarios = []
-];
-
-function mostrarDatos(btn) {
-    let titleCard = document.querySelector('.card-title');
-    titleCard.textContent = '';
-    let textCard = document.querySelector('.card-text');
-    textCard.textContent = '';
-    let data = data_array.find(ele => ele.nombre == btn);
-    titleCard.textContent = data.title;
-    textCard.textContent = data.descripcion;
-
-    $.ajax({
-        url: './controller/controller.php',
-        type: 'POST',
-        data: {
-            get_btn: true,
-        },
-        dataType: 'json',
-        async: false,
-        success: function(response) {
-            console.log('response', response)
-        },
-        error: function(err) {
-            console.error(err);
+let data_array = {
+    agenda: {
+        data: [],
+        title: 'Agenda',
+        dataInputs: [
+            {
+                id: 'id',
+                type: 'hidden',
+                value: '',
+            },
+            {
+                id: 'estado',
+                type: 'select',
+                label: 'Estado',
+                options: [
+                    {value: 'agendado', text: 'Agendado', selected: true},
+                    {value: 'cancelado', text: 'Cancelado'},
+                    {value: 'reprogramado', text: 'Reprogramado'},
+                    {value: 'finalizado', text: 'Finalizado'},
+                ]
+            },
+            {
+                id: 'fecha',
+                type: 'date',
+                label: 'Fecha',
+                value: new Date().toISOString().split('T')[0],
+            },
+            {
+                id: 'hora',
+                type: 'time',
+                label: 'Hora',
+            },
+            {
+                id: 'servicio',
+                type: 'loadInfo',
+                label: 'Servicio',
+            },
+            {
+                id: 'empleado',
+                type: 'loadInfo',
+                label: 'Empleado',
+            },
+            {
+                id: 'usuario',
+                type: 'loadInfo',
+                label: 'Usuario',
+            },
+        ],
+        infoDelete: {
+            title: 'Eliminar Agenda',
+            message: '¿Está seguro de eliminar la agenda?',
+            camposInfo: ['servicio', 'usuario', 'fecha'],
         }
-    });
+    },
+    empleado: {
+        data: [],
+        title: 'Empleado',
+        dataInputs: [
+            {
+                id: 'id',
+                type: 'hidden',
+                value: '',
+            },
+            {
+                id: 'nombre',
+                type: 'text',
+                label: 'Nombre',
+            },
+            {
+                id: 'apellido',
+                type: 'text',
+                label: 'Apellido',
+            },
+            {
+                id: 'servicio',
+                type: 'loadInfo',
+                label: 'Servicio',
+            },
+            {
+                id: 'telefono',
+                type: 'number',
+                label: 'Telefono',
+            },
+        ],
+        infoDelete: {
+            title: 'Eliminar Empleado',
+            message: '¿Está seguro de eliminar el empleado?',
+            camposInfo: ['nombre', 'apellido'],
+        }
+    },
+    servicio: {
+        data: [],
+        title: 'Servicio',
+        dataInputs: [
+            {
+                id: 'id',
+                type: 'hidden',
+                value: '',
+            },
+            {
+                id: 'servicio',
+                type: 'text',
+                label: 'Servicio',
+            },
+            {
+                id: 'descripcion',
+                type: 'text',
+                label: 'Descripcion',
+            },
+            {
+                id: 'valor',
+                type: 'number',
+                label: 'Valor',
+            },
+        ],
+        infoDelete: {
+            title: 'Eliminar Servicio',
+            message: '¿Está seguro de eliminar el servicio?',
+            camposInfo: ['servicio'],
+        }
+    },
+    usuario: {
+        data: [],
+        title: 'Usuario',
+        dataInputs: [
+            {
+                id: 'id',
+                type: 'hidden',
+                value: '',
+            },
+            {
+                id: 'nombre',
+                type: 'text',
+                label: 'Nombre',
+            },
+            {
+                id: 'apellido',
+                type: 'text',
+                label: 'Apellido',
+            },
+            {
+                id: 'correo',
+                type: 'email',
+                label: 'Correo',
+            },
+            {
+                id: 'telefono',
+                type: 'number',
+                label: 'Telefono',
+            },
+        ],
+        infoDelete: {
+            title: 'Eliminar Usuario',
+            message: '¿Está seguro de eliminar el usuario?',
+            camposInfo: ['nombre', 'apellido'],
+        }
+    }
+};
+
+function actionModal(modal, action, id=false){
+    console.log('modal', modal);
+    console.log('action', action);
+    let modalHeader = document.querySelector('#generalModal .modal-header');
+    modalHeader.classList.remove('bg-twitter');
+    modalHeader.classList.add('text-capitalize', 'text-center', 'text-white', 'bg-teal', 'p-2');
+    let modalTitle = document.querySelector('#generalModalLabel');
+    let modalBody = document.querySelector('#generalModal .modal-body');
+    modalBody.innerHTML = '';
+    let modalBtnAct = document.querySelector('#btnModalAction');
+    modalBtnAct.classList.remove('btn-twitter');
+    modalBtnAct.classList.add('btn-teal');
+    let modalForm = document.createElement('form');
+    modalForm.id = 'formModal';
+    modalForm.classList.add('row', 'g-3');
+    modalForm.innerHTML = '';
+    let dataInputs = data_array[modal].dataInputs;
+    
+    if(action == 'eliminar'){
+        modalHeader.classList.remove('bg-teal');
+        modalBtnAct.classList.remove('btn-teal');
+        modalHeader.classList.add('bg-danger');
+        modalBtnAct.classList.add('btn-danger');
+        modalBtnAct.textContent = 'Eliminar';
+        let input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'id';
+        input.name = 'id';
+        input.value = id;
+        modalForm.appendChild(input);
+        const findData = data_array[modal].data.find(data => data.id == id);
+        let divInfo = document.createElement('div');
+        divInfo.classList.add('text-center');
+        divInfo.innerHTML = `<h4>${data_array[modal].infoDelete.message}</h4>`;
+        modalBody.appendChild(divInfo);
+        let divCampos = document.createElement('div');
+        divCampos.classList.add('row', 'g-3');
+        data_array[modal].infoDelete.camposInfo.forEach(campo => {
+            let divCampo = document.createElement('div');
+            divCampo.classList.add('col-12');
+            let value = findData[campo] || '';
+            // if string .toUpperCase()
+            if(modal == 'agenda' && campo == 'servicio'){
+                let find_servicio = data_array.servicio.data.find(servicio => servicio.id == value);
+                
+                value = find_servicio.servicio || 'No encontrado';
+            }
+            if(modal == 'agenda' && campo == 'usuario'){
+                let find_usuario = data_array.usuario.data.find(usuario => usuario.id == value);
+                value = `${find_usuario.nombre} ${find_usuario.apellido}` || 'No encontrado';
+            }
+            if(typeof value == 'string') value = value.toUpperCase();
+            divCampo.innerHTML = `<input type="text" class="form-control" id="${campo}" name="${campo}" value="${value}" readonly>`;
+            divCampos.appendChild(divCampo);
+
+        });
+        modalBody.appendChild(divCampos);
+    } 
+    else if(action == 'editar'){
+        modalHeader.classList.remove('bg-teal');
+        modalBtnAct.classList.remove('btn-teal');
+        modalHeader.classList.add('bg-twitter');
+        modalBtnAct.classList.add('btn-twitter');
+        let data = data_array[modal].dataInputs;
+        let form = document.querySelector('#formModal');
+        let dataEdit = data_array[modal].data.find(data => data.id == id);
+        data.forEach(input => {
+            let divInput = document.createElement('div');
+            divInput.classList.add('col-12');
+            if(input.type == 'hidden') {
+                divInput.innerHTML = `<input type="${input.type}" id="${input.id}" name="${input.id}" value="${id}">`;
+            } 
+            else if(input.type == 'loadInfo') {
+                let dataInfo = data_array[input.id].data;
+                let options = '';
+                if(input.id == 'servicio') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}" ${info.id == dataEdit.servicio ? 'selected' : ''}>${info.servicio}</option>`;
+                    });
+                } else if(input.id == 'empleado') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}" ${info.id == dataEdit.empleado ? 'selected' : ''}>${info.nombre} ${info.apellido}</option>`;
+                    });
+                } else if(input.id == 'usuario') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}" ${info.id == dataEdit.usuario ? 'selected' : ''}>${info.nombre} ${info.apellido}</option>`;
+                    });
+                };
+                
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label  ">${input.label}</label>
+                    <select class="form-select" id="${input.id}" name="${input.id}">
+                        ${options}
+                    </select>
+                `;
+            }
+            else if(input.type == 'select') {
+                let options = '';
+                input.options.forEach(option => {
+                    options += `<option value="${option.value}" ${option.selected ? 'selected' : ''}>${option.text}</option>`;
+                });
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label
+                    ">${input.label}</label>
+                    <select class="form-select" id="${input.id}" name="${input.id}">
+                        ${options}
+                    </select>
+                `;
+            }
+            else {
+                let value = dataEdit[input.id] || '';
+                if(input.id == 'fecha') {
+                    let date = new Date(value);
+                    value = date.toISOString().split('T')[0];
+                }
+                if(input.id == 'hora') {
+                    value =  dataEdit['fecha'].split(' ')[1];
+                }
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label
+                    ">${input.label}</label>
+                    <input type="${input.type}" class="form-control ${value}" id="${input.id}" name="${input.id}" value="${value}">
+                `;
+            }
+            modalForm.appendChild(divInput);
+        });
+
+    } else{
+        dataInputs.forEach(input => {
+            let divInput = document.createElement('div');
+            divInput.classList.add('col-12');
+            if(input.type == 'hidden') {
+                divInput.innerHTML = `<input type="${input.type}" id="${input.id}" name="${input.id}" value="${input.value}">`;
+            } else if(input.type == 'loadInfo') {
+                let dataInfo = data_array[input.id].data;
+                let options = `<option value="-1">Seleccione una opción</option>`;
+                if(input.id == 'servicio') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}">${info.servicio}</option>`;
+                    });
+                } else if(input.id == 'empleado') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}">${info.nombre} ${info.apellido}</option>`;
+                    });
+                } else if(input.id == 'usuario') {
+                    dataInfo.forEach(info => {
+                        options += `<option value="${info.id}">${info.nombre} ${info.apellido}</option>`;
+                    });
+                };
+                
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label
+                    ">${input.label}</label>
+                    <select class="form-select" id="${input.id}" name="${input.id}">
+                        ${options}
+                    </select>
+                `;
+
+            } else if(input.type == 'select') {
+                let options = '';
+                input.options.forEach(option => {
+                    options += `<option value="${option.value}" ${option.selected ? 'selected' : ''}>${option.text}</option>`;
+                });
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label">${input.label}</label>
+                    <select class="form-select" id="${input.id}" name="${input.id}">
+                        ${options}
+                    </select>
+                `;
+            } else {
+                let value = input.value || '';
+                divInput.innerHTML = `
+                    <label for="${input.id}" class="form-label
+                    ">${input.label}</label>
+                    <input type="${input.type}" class="form-control" id="${input.id}" name="${input.id}" value="${value}">
+                `;
+            }
+            modalForm.appendChild(divInput);
+        });
+    }
+    modalBody.appendChild(modalForm);
+    modalTitle.textContent = `${action} ${data_array[modal].title}`;
+    modalBtnAct.textContent = action;
+    $('#generalModal').modal('show');
+    
+    
+    
 }
 
 function loadTableSelect(id, data, columns, columDefs) {
+    console.log('columDefs', columDefs)
     $('#'+id).DataTable({
         destroy: true,
         dom: 'B<"float-right"f>t<"d-flex align-items-end justify-content-between"ip><"clearfix">',
@@ -211,36 +527,37 @@ function loadDataAgenda() {
         {
             targets: 4, //servicio
             render: function(data, type, row, meta) {
-                const servicio = data_array.servicios.find(servicio => servicio.id == data) || {servicio: 'No encontrado'};
+                const servicio = data_array.servicio.data.find(servicio => servicio.id == data) || {servicio: 'No encontrado'};
                 return servicio.servicio;
             }
         },
         {
             targets: 5, //empleado
             render: function(data, type, row, meta) {
-                const empleado = data_array.empleados.find(empleado => empleado.id == data) || {nombre: 'No encontrado', apellido: ''};
+                const empleado = data_array.empleado.data.find(empleado => empleado.id == data) || {nombre: 'No encontrado', apellido: ''};
                 return `${empleado.nombre.toUpperCase()} ${empleado.apellido.toUpperCase()}`;
             }
         },
         {
             targets: 6, //usuario
             render: function(data, type, row, meta) {
-                const usuario = data_array.usuarios.find(usuario => usuario.id == data) || {nombre: 'No encontrado', apellido: ''};
+                const usuario = data_array.usuario.data.find(usuario => usuario.id == data) || {nombre: 'No encontrado', apellido: ''};
                 return `${usuario.nombre.toUpperCase()} ${usuario.apellido.toUpperCase()}`;
             }
         },
         {
             targets: 7,
             render: function(data, type, row, meta) {
-                return `
-                    <i class="btn-primary btn-sm ti ti-edit" onclick="editAgenda(${data})" title="Editar"></i>
-                    <i class="btn-danger btn-sm ti ti-trash" onclick="deleteAgenda(${data})" title="Eliminar"></i>
-                `;
+                return `<div class="d-flex gap-2 justify-content-center">
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('agenda', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('agenda', 'eliminar', ${data})"></i>
+                        </div>`;
+
             }
         }
     ];
 
-    loadTableSelect('table_agenda', data_array.agenda, columns, columDefs);
+    loadTableSelect('table_agenda', data_array.agenda.data, columns, columDefs);
 
     
     
@@ -315,15 +632,15 @@ function loadDataEmpleados(){
         {
             targets: 5,
             render: function(data, type, row, meta) {
-                return `
-                    <i class="btn-primary btn-sm ti ti-edit" onclick="editEmpleado(${data})" title="Editar"></i>
-                    <i class="btn-danger btn-sm ti ti-trash" onclick="deleteEmpleado(${data})" title="Eliminar"></i>
-                `;
+                return `<div class="d-flex gap-2 justify-content-center">
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('empleado', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('empleado', 'eliminar', ${data})"></i>
+                        </div>`;;
             }
         }
     ];
 
-    loadTableSelect('table_empleados', data_array.empleados, columns, columDefs);
+    loadTableSelect('table_empleados', data_array.empleado.data, columns, columDefs);
 }
 function loadDataServicios(){
     const id_table = 'table_servicios';
@@ -390,15 +707,15 @@ function loadDataServicios(){
         {
             targets: 4,
             render: function(data, type, row, meta) {
-                return `
-                    <i class="btn-primary btn-sm ti ti-edit" onclick="editServicio(${data})" title="Editar"></i>
-                    <i class="btn-danger btn-sm ti ti-trash" onclick="deleteServicio(${data})" title="Eliminar"></i>
-                `;
+                return `<div class="d-flex gap-2 justify-content-center">
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('servicio', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('servicio', 'eliminar', ${data})"></i>
+                        </div>`;
             }
         }
     ];
 
-    loadTableSelect('table_servicios', data_array.servicios, columns, columDefs);
+    loadTableSelect('table_servicios', data_array.servicio.data, columns, columDefs);
 }
 function loadDataUsuarios(){
     const id_table = 'table_usuarios';
@@ -469,17 +786,16 @@ function loadDataUsuarios(){
         {
             targets: 5,
             render: function(data, type, row, meta) {
-                return `
-                    <i class="btn-primary btn-sm ti ti-edit" onclick="editUsuario(${data})" title="Editar"></i>
-                    <i class="btn-danger btn-sm ti ti-trash" onclick="deleteUsuario(${data})" title="Eliminar"></i>
-                `;
+                return `<div class="d-flex gap-2 justify-content-center">
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('usuario', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('usuario', 'eliminar', ${data})"></i>
+                        </div>`;
             }
         }
     ];
 
-    loadTableSelect('table_usuarios', data_array.usuarios, columns, columDefs);
+    loadTableSelect('table_usuarios', data_array.usuario.data, columns, columDefs);
 }
-
 
 function getAllData() {
     console.log('data', data_array);
@@ -494,10 +810,10 @@ function getAllData() {
         success: function(response) {
             console.log('response', response)
             if(response.success) {
-                data_array.agenda = response.agenda;
-                data_array.empleados = response.empleados;
-                data_array.servicios = response.servicios;
-                data_array.usuarios = response.usuarios;
+                data_array.agenda.data = response.agenda;
+                data_array.empleado.data = response.empleados;
+                data_array.servicio.data = response.servicios;
+                data_array.usuario.data = response.usuarios;
                 loadDataAgenda();
             }
         },
@@ -511,9 +827,6 @@ function getAllData() {
 
 document.addEventListener('DOMContentLoaded', async(e) => {
     await getAllData();
-
-    
-    // header_tabs
     let btns_tabs = document.querySelectorAll('#header_tabs .nav-link');
     btns_tabs.forEach(btn => {
         btn.addEventListener('click', async(e) => {
@@ -522,34 +835,23 @@ document.addEventListener('DOMContentLoaded', async(e) => {
             if(tab == 'agenda') {
                 loadDataAgenda();
             }
-            if(tab == 'empleados') {
+            if(tab == 'empleado') {
                 loadDataEmpleados();
             }
-            if(tab == 'servicios') {
+            if(tab == 'servicio') {
                 loadDataServicios();
             }
-            if(tab == 'usuarios') {
+            if(tab == 'usuario') {
                 loadDataUsuarios();
             }
         });
     });
-    
-    
-    
-    
-    // let botonesAgenda = document.querySelector('#botones_agenda'); //SELECCIONAR EL DIV DE LOS BOTONES
-    // botonesAgenda.addEventListener('click', async(e) => {  // EVENTO CLICK EN EL DIV DE LOS BOTONES
-    //     if(e.target.id == 'btnradio1'){ // SI EL ID DEL ELEMENTO QUE SE HIZO CLICK ES IGUAL A btnradio1
-    //          mostrarDatos('servicios'); // EJECUTAR LA FUNCION MOSTRARDATOS CON EL PARAMETRO SERVICIOS  
-    //     } 
-    //     else if(e.target.id == 'btnradio2'){ 
-    //          mostrarDatos('empleados');
-    //     } 
-    //     else if(e.target.id == 'btnradio3'){ 
-    //          mostrarDatos('usuarios');
-    //     } 
-    //     else if(e.target.id == 'btnradio4'){ 
-    //          mostrarDatos('agendas');
-    //     }
-    // });
+    let btns_modal = document.querySelectorAll('[data-new-add="modal"]');
+    btns_modal.forEach(btn => {
+        btn.addEventListener('click', async(e) => {
+            console.log('e.target', e.target)
+            let modal = e.target.closest('.tab-pane').id.split('-')[1];
+            actionModal(modal, 'Agregar');
+        });
+    });
 });
