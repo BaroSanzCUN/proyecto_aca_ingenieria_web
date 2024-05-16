@@ -1,4 +1,3 @@
-
 let dataTable_all_btn = [
     {
         extend: "pageLength",
@@ -6,8 +5,8 @@ let dataTable_all_btn = [
     },
     {
         extend: "excelHtml5",
-        text: '<i class="fas fa-file-excel"></input>',
-        titleAttr: "Exportar a Excel",
+        text: '<i class="ti ti-file-type-csv"></i>',
+        titleAttr: "Exportar a CSV",
         className: "btn btn-sm btn-success border-0",
         autoFilter: true,
         title: 'tt_exporte',
@@ -19,7 +18,7 @@ let dataTable_all_btn = [
     },
     {
         extend: "pdfHtml5",
-        text: '<i class="fas fa-file-pdf"></input>',
+        text: '<i class="ti ti-file-type-pdf"></i>',
         titleAttr: "Exportar a PDF",
         className: "btn btn-sm btn-danger border-0",
         download: "open",
@@ -28,13 +27,13 @@ let dataTable_all_btn = [
     },
     {
         extend: "copy",
-        text: '<i class="fas fa-copy"></i>',
+        text: '<i class="ti ti-copy"></i>',
         titleAttr: "Copiar",
         className: "btn btn-sm bg-primary border-0",
     },
     {
         extend: "print",
-        text: '<i class="fas fa-print"></i>',
+        text: '<i class="ti ti-printer"></i>',
         titleAttr: "Imprimir",
         className: "btn btn-sm btn-secondary border-0",
         customize: function (win) {
@@ -208,6 +207,36 @@ let data_array = {
     }
 };
 
+function getActionForm(form, tabla, action, id){
+    let formData = new FormData(form);
+    let data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+    console.log('data', data);
+    $.ajax({
+        url: './controller/controller.php',
+        type: 'POST',
+        data: {
+            action: action,
+            data: JSON.stringify(data),
+            tabla: tabla,
+            getFormAction: true,
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log('response', response);
+            // if(response.success) {
+            //     $('#generalModal').modal('hide');
+            //     getAllData();
+            // }
+        },
+        error: function(err) {
+            console.error(err);
+        }
+    });
+
+}
 function actionModal(modal, action, id=false){
     console.log('modal', modal);
     console.log('action', action);
@@ -335,7 +364,8 @@ function actionModal(modal, action, id=false){
             modalForm.appendChild(divInput);
         });
 
-    } else{
+    } 
+    else{
         dataInputs.forEach(input => {
             let divInput = document.createElement('div');
             divInput.classList.add('col-12');
@@ -391,6 +421,13 @@ function actionModal(modal, action, id=false){
     modalBody.appendChild(modalForm);
     modalTitle.textContent = `${action} ${data_array[modal].title}`;
     modalBtnAct.textContent = action;
+    modalBtnAct.onclick = async(e) => {
+        e.preventDefault();
+        let form = document.querySelector('#formModal');
+        getActionForm(form, modal, action, id);
+    }
+
+
     $('#generalModal').modal('show');
     
     
