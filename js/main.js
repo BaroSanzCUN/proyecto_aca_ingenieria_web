@@ -207,6 +207,36 @@ let data_array = {
     }
 };
 
+function getActionForm(form, tabla, action, id){
+    let formData = new FormData(form);
+    let data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+    console.log('data', data);
+    $.ajax({
+        url: './controller/controller.php',
+        type: 'POST',
+        data: {
+            action: action,
+            data: JSON.stringify(data),
+            tabla: tabla,
+            getFormAction: true,
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log('response', response);
+            // if(response.success) {
+            //     $('#generalModal').modal('hide');
+            //     getAllData();
+            // }
+        },
+        error: function(err) {
+            console.error(err);
+        }
+    });
+
+}
 function actionModal(modal, action, id=false){
     console.log('modal', modal);
     console.log('action', action);
@@ -391,6 +421,13 @@ function actionModal(modal, action, id=false){
     modalBody.appendChild(modalForm);
     modalTitle.textContent = `${action} ${data_array[modal].title}`;
     modalBtnAct.textContent = action;
+    modalBtnAct.onclick = async(e) => {
+        e.preventDefault();
+        let form = document.querySelector('#formModal');
+        getActionForm(form, modal, action, id);
+    }
+
+
     $('#generalModal').modal('show');
     
     
