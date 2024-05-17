@@ -208,14 +208,20 @@ let data_array = {
 };
 
 function getActionForm(form, tabla, action, id){
+    if (!form.reportValidity()) {
+        return
+    }
+
     let formData = new FormData(form);
     let data = {};
     formData.forEach((value, key) => {
         data[key] = value;
     });
 
-    let fecha_hora = `${data.fecha.split(' ')[0]} ${data.hora}`;
-    data.fecha = fecha_hora;
+    if(data.hora){
+        let fecha_hora = `${data.fecha.split(' ')[0]} ${data.hora}`;
+        data.fecha = fecha_hora;
+    }
     console.log('data', data);
     $.ajax({
         url: './controller/controller.php',
@@ -251,6 +257,10 @@ function getActionForm(form, tabla, action, id){
                     data_table.row.add(new_row).draw();
                     row = document.getElementById(`${id_table}`).querySelector(`[data-rowedit="${response.id}"]`).closest('tr');
                     row.classList.add('bg-green-lt');
+                    data_array[tabla].data.push(new_row);
+                    setTimeout(() => {
+                        row.classList.remove('bg-green-lt');
+                    }, 5000);
                 }
                 if(action.toLowerCase() == 'editar') {
                     let new_row = data;
@@ -258,6 +268,11 @@ function getActionForm(form, tabla, action, id){
                     data_table.row(row).data(new_row).draw();
                     row = document.getElementById(`${id_table}`).querySelector(`[data-rowedit="${id}"]`).closest('tr');
                     row.classList.add('bg-twitter');
+                    let index = data_array[tabla].data.findIndex(data => data.id == id);
+                    data_array[tabla].data[index] = new_row;
+                    setTimeout(() => {
+                        row.classList.remove('bg-twitter');
+                    }, 5000);
                 }
                 if(action.toLowerCase() == 'eliminar') {
                     row = document.getElementById(`${id_table}`).querySelector(`[data-rowdel="${id}"]`).closest('tr');
@@ -265,6 +280,8 @@ function getActionForm(form, tabla, action, id){
                     setTimeout(() => {
                         data_table.row(row).remove().draw();
                     }, 3000);
+                    let index = data_array[tabla].data.findIndex(data => data.id == id);
+                    data_array[tabla].data.splice(index, 1);
                 }
 
                 // getAllData();
@@ -374,7 +391,7 @@ function actionModal(modal, action, id=false){
                 
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label  ">${input.label}</label>
-                    <select class="form-select" id="${input.id}" name="${input.id}">
+                    <select class="form-select" id="${input.id}" name="${input.id}" required>
                         ${options}
                     </select>
                 `;
@@ -387,7 +404,7 @@ function actionModal(modal, action, id=false){
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label
                     ">${input.label}</label>
-                    <select class="form-select" id="${input.id}" name="${input.id}">
+                    <select class="form-select" id="${input.id}" name="${input.id}" required>
                         ${options}
                     </select>
                 `;
@@ -404,7 +421,7 @@ function actionModal(modal, action, id=false){
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label
                     ">${input.label}</label>
-                    <input type="${input.type}" class="form-control ${value}" id="${input.id}" name="${input.id}" value="${value}">
+                    <input type="${input.type}" class="form-control ${value}" id="${input.id}" name="${input.id}" value="${value}" required>
                 `;
             }
             modalForm.appendChild(divInput);
@@ -419,7 +436,7 @@ function actionModal(modal, action, id=false){
                 divInput.innerHTML = `<input type="${input.type}" id="${input.id}" name="${input.id}" value="${input.value}">`;
             } else if(input.type == 'loadInfo') {
                 let dataInfo = data_array[input.id].data;
-                let options = `<option value="-1">Seleccione una opción</option>`;
+                let options = `<option value="">Seleccione una opción</option>`;
                 if(input.id == 'servicio') {
                     dataInfo.forEach(info => {
                         options += `<option value="${info.id}">${info.servicio}</option>`;
@@ -437,7 +454,7 @@ function actionModal(modal, action, id=false){
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label
                     ">${input.label}</label>
-                    <select class="form-select" id="${input.id}" name="${input.id}">
+                    <select class="form-select" id="${input.id}" name="${input.id}" required>
                         ${options}
                     </select>
                 `;
@@ -449,7 +466,7 @@ function actionModal(modal, action, id=false){
                 });
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label">${input.label}</label>
-                    <select class="form-select" id="${input.id}" name="${input.id}">
+                    <select class="form-select" id="${input.id}" name="${input.id}" required>
                         ${options}
                     </select>
                 `;
@@ -458,7 +475,7 @@ function actionModal(modal, action, id=false){
                 divInput.innerHTML = `
                     <label for="${input.id}" class="form-label
                     ">${input.label}</label>
-                    <input type="${input.type}" class="form-control" id="${input.id}" name="${input.id}" value="${value}">
+                    <input type="${input.type}" class="form-control" id="${input.id}" name="${input.id}" value="${value}" required>
                 `;
             }
             modalForm.appendChild(divInput);
@@ -530,6 +547,7 @@ function createTablaSelect(data, id){
     const tableRowFoot = document.createElement('tr');
     data.forEach((element) => {
         const tableHeadElement = document.createElement('th');
+        tableHeadElement.classList.add('align-middle', 'bg-primary', 'text-white', 'text-center');
         tableHeadElement.textContent = element;
         tableRowHead.appendChild(tableHeadElement);
         const tableFootElement = document.createElement('th');
