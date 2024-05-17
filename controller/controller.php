@@ -13,7 +13,7 @@
     // get data from database
     function getData($tabledb){
         $pdo = connect();
-        $sql = "SELECT * FROM $tabledb";
+        $sql = "SELECT * FROM $tabledb ORDER BY id DESC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC ); // (PDO::FETCH_ASSOC, PDO::FETCH_NUM, PDO::FETCH_BOTH, PDO::FETCH_OBJ
@@ -195,14 +195,12 @@
             $data_set = '';
             $values = array();
             foreach($data_post as $key => $value){
-                if($key != 'id'){
-                    $data_set .= $key.'=:'.$key.','; // Construye la lista de columnas con marcadores de posición
-                    $values[$key] = $value; // Almacena los valores en un array asociativo
+                if($key != 'id' && $key != 'hora'){
+                    $data_set .= $key.'=:'.$key.',';
+                    $values[$key] = $value;
                 }
             }
             $data_set = rtrim($data_set, ',');
-
-            // Llamada a la función updateData()
             $output = updateData($tabla, $data_set, $values, $id);
         }
         else if(strtolower($action) == 'eliminar'){
