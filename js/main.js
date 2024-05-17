@@ -213,6 +213,9 @@ function getActionForm(form, tabla, action, id){
     formData.forEach((value, key) => {
         data[key] = value;
     });
+
+    let fecha_hora = `${data.fecha.split(' ')[0]} ${data.hora}`;
+    data.fecha = fecha_hora;
     console.log('data', data);
     $.ajax({
         url: './controller/controller.php',
@@ -235,12 +238,33 @@ function getActionForm(form, tabla, action, id){
                     showConfirmButton: false,
                     timer: 1500,
                 });
-                let data_table = $('#tabla_procesos_disciplinarios').DataTable();
+                let id_table = `table_agenda`;
+                if(tabla == 'usuario') id_table = `table_usuarios`;
+                if(tabla == 'empleado') id_table = `table_empleados`;
+                if(tabla == 'servicio') id_table = `table_servicios`;
+                let data_table = $('#'+id_table).DataTable();
                 let row = '';
-                if(action == 'agregar') {
+                if(action.toLowerCase() == 'agregar') {
                     let new_row = data;
-                    wew_row.id = response.data; 
-                    data_table.row.add(response.data).draw();
+                    new_row.id = response.id; 
+                    console.log('new_row', new_row)
+                    data_table.row.add(new_row).draw();
+                    row = document.getElementById(`${id_table}`).querySelector(`[data-rowedit="${response.id}"]`).closest('tr');
+                    row.classList.add('bg-green-lt');
+                }
+                if(action.toLowerCase() == 'editar') {
+                    let new_row = data;
+                    new_row.id = id;
+                    data_table.row(row).data(new_row).draw();
+                    row = document.getElementById(`${id_table}`).querySelector(`[data-rowedit="${id}"]`).closest('tr');
+                    row.classList.add('bg-twitter');
+                }
+                if(action.toLowerCase() == 'eliminar') {
+                    row = document.getElementById(`${id_table}`).querySelector(`[data-rowdel="${id}"]`).closest('tr');
+                    row.classList.add('bg-danger-subtle');
+                    setTimeout(() => {
+                        data_table.row(row).remove().draw();
+                    }, 3000);
                 }
 
                 // getAllData();
@@ -457,7 +481,6 @@ function actionModal(modal, action, id=false){
 }
 
 function loadTableSelect(id, data, columns, columDefs) {
-    console.log('columDefs', columDefs)
     $('#'+id).DataTable({
         destroy: true,
         dom: 'B<"float-right"f>t<"d-flex align-items-end justify-content-between"ip><"clearfix">',
@@ -468,6 +491,12 @@ function loadTableSelect(id, data, columns, columDefs) {
         language: {
             url: 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
         },
+        order: [[0, 'desc']],
+        displayLength: 20,
+        lengthMenu: [
+            [10, 20, 30, 50, 100, 200, 500, 1000, -1],
+            [10, 20, 30, 50, 100, 200, 500, 1000, "All"]
+        ],
         initComplete: function () {
             // $(`#${id} tfoot th`).each(function () {
             $('#'+id+' tfoot th').each(function () {
@@ -608,8 +637,8 @@ function loadDataAgenda() {
             targets: 7,
             render: function(data, type, row, meta) {
                 return `<div class="d-flex gap-2 justify-content-center">
-                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('agenda', 'editar', ${data})"></i>
-                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('agenda', 'eliminar', ${data})"></i>
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" data-rowedit="${data}" onclick="actionModal('agenda', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" data-rowdel="${data}" onclick="actionModal('agenda', 'eliminar', ${data})"></i>
                         </div>`;
 
             }
@@ -692,8 +721,8 @@ function loadDataEmpleados(){
             targets: 5,
             render: function(data, type, row, meta) {
                 return `<div class="d-flex gap-2 justify-content-center">
-                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('empleado', 'editar', ${data})"></i>
-                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('empleado', 'eliminar', ${data})"></i>
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" data-rowedit="${data}" onclick="actionModal('empleado', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" data-rowdel="${data}" onclick="actionModal('empleado', 'eliminar', ${data})"></i>
                         </div>`;;
             }
         }
@@ -767,8 +796,8 @@ function loadDataServicios(){
             targets: 4,
             render: function(data, type, row, meta) {
                 return `<div class="d-flex gap-2 justify-content-center">
-                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('servicio', 'editar', ${data})"></i>
-                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('servicio', 'eliminar', ${data})"></i>
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" data-rowedit="${data}" onclick="actionModal('servicio', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" data-rowdel="${data}" onclick="actionModal('servicio', 'eliminar', ${data})"></i>
                         </div>`;
             }
         }
@@ -846,8 +875,8 @@ function loadDataUsuarios(){
             targets: 5,
             render: function(data, type, row, meta) {
                 return `<div class="d-flex gap-2 justify-content-center">
-                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" onclick="actionModal('usuario', 'editar', ${data})"></i>
-                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" onclick="actionModal('usuario', 'eliminar', ${data})"></i>
+                            <i class="btn-primary btn-sm ti ti-edit" title="Editar" data-rowedit="${data}" onclick="actionModal('usuario', 'editar', ${data})"></i>
+                            <i class="btn-danger btn-sm ti ti-trash" title="Eliminar" data-rowdel="${data}" onclick="actionModal('usuario', 'eliminar', ${data})"></i>
                         </div>`;
             }
         }
@@ -857,7 +886,6 @@ function loadDataUsuarios(){
 }
 
 function getAllData() {
-    console.log('data', data_array);
     $.ajax({
         url: './controller/controller.php',
         type: 'POST',
@@ -867,7 +895,6 @@ function getAllData() {
         dataType: 'json',
         async: false,
         success: function(response) {
-            console.log('response', response)
             if(response.success) {
                 data_array.agenda.data = response.agenda;
                 data_array.empleado.data = response.empleados;
@@ -908,7 +935,6 @@ document.addEventListener('DOMContentLoaded', async(e) => {
     let btns_modal = document.querySelectorAll('[data-new-add="modal"]');
     btns_modal.forEach(btn => {
         btn.addEventListener('click', async(e) => {
-            console.log('e.target', e.target)
             let modal = e.target.closest('.tab-pane').id.split('-')[1];
             actionModal(modal, 'Agregar');
         });
