@@ -226,10 +226,34 @@ function getActionForm(form, tabla, action, id){
         dataType: 'json',
         success: function(response) {
             console.log('response', response);
-            // if(response.success) {
-            //     $('#generalModal').modal('hide');
-            //     getAllData();
-            // }
+            if(response.success) {
+                $('#generalModal').modal('hide');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    text: response.message,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+                let data_table = $('#tabla_procesos_disciplinarios').DataTable();
+                let row = '';
+                if(action == 'agregar') {
+                    let new_row = data;
+                    wew_row.id = response.data; 
+                    data_table.row.add(response.data).draw();
+                }
+
+                // getAllData();
+            }
+            else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.message,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
         },
         error: function(err) {
             console.error(err);
@@ -238,10 +262,8 @@ function getActionForm(form, tabla, action, id){
 
 }
 function actionModal(modal, action, id=false){
-    console.log('modal', modal);
-    console.log('action', action);
     let modalHeader = document.querySelector('#generalModal .modal-header');
-    modalHeader.classList.remove('bg-twitter');
+    modalHeader.classList.remove('bg-twitter', 'bg-danger');
     modalHeader.classList.add('text-capitalize', 'text-center', 'text-white', 'bg-teal', 'p-2');
     let modalTitle = document.querySelector('#generalModalLabel');
     let modalBody = document.querySelector('#generalModal .modal-body');

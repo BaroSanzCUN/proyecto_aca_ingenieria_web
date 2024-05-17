@@ -61,11 +61,11 @@
         $output = array(
             'success' => false,
             'error' => $erro_info[0],
-            'message' => $erro_info[2]
+            'message' => $erro_info[2],
         );
         if($erro_info[0] == '00000'){
             $output['success'] = true;
-            $output['message'] = 'Data inserted successfully';
+            $output['message'] = 'Registro Insertado Correctamente';
             $output['id'] = $pdo->lastInsertId();
             $output['data'] = $data;
             $output['columnas'] = $columns;
@@ -75,24 +75,29 @@
     }
 
     // update data in database
-    function updateData($tabledb, $columns, $data, $id){
+    function updateData($tabledb, $data_set, $values, $id){
         $pdo = connect();
-        $sql = "UPDATE $tabledb SET $columns WHERE id = :id";
+        $sql = "UPDATE $tabledb SET $data_set WHERE id = :id";
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':id', $id);
-        foreach($data as $key => $value){
-            $stmt->bindParam(':'.$key, $value);
+    
+        // Vincula los valores de los marcadores de posición en la consulta SQL
+        foreach ($values as $key => $val) {
+            $stmt->bindValue(':'.$key, $val);
         }
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT); // Asumiendo que $id es un entero
+    
         $stmt->execute();
         $erro_info = $stmt->errorInfo();
         $output = array(
             'success' => false,
             'error' => $erro_info[0],
-            'message' => $erro_info[2]
+            'message' => $erro_info[2],
+            'sql' => $sql
         );
+    
         if($erro_info[0] == '00000'){
             $output['success'] = true;
-            $output['message'] = 'Data updated successfully';
+            $output['message'] = 'Actualización exitosa';
         }
         return $output;
     }
@@ -112,7 +117,7 @@
         );
         if($erro_info[0] == '00000'){
             $output['success'] = true;
-            $output['message'] = 'Data deleted successfully';
+            $output['message'] = 'Eliminación exitosa';
         }
         return $output;
     }
@@ -175,26 +180,32 @@
                 );
                 $output_rel = insertData($tabla_rel, $data_rel, $columns_rel, $values_rel);
                 if($output_rel['success']){
-                    $output['message'] = 'Data inserted successfully';
+                    $output['message'] = 'Registro Insertado Correctamente';
+                    $output['id'] = $output['id'];
                 }
                 else{
-                    $output['message'] = $output_rel['message'];
+                    $output['message'] = 'Error al insertar el registro';
+                    $output['error'] = true;
+                    $output['success'] = false;
                 }
             }
         }
-        else if($action == 'update'){
+        else if(strtolower($action) == 'editar'){
             $columns = '';
-            $data = array();
-            foreach($data as $key => $value){
+            $data_set = '';
+            $values = array();
+            foreach($data_post as $key => $value){
                 if($key != 'id'){
-                    $columns .= $key.'=:'.$key.',';
-                    $data[':'.$key] = $value;
+                    $data_set .= $key.'=:'.$key.','; // Construye la lista de columnas con marcadores de posición
+                    $values[$key] = $value; // Almacena los valores en un array asociativo
                 }
             }
-            $columns = rtrim($columns, ',');
-            $output = updateData($tabla, $columns, $data, $id);
+            $data_set = rtrim($data_set, ',');
+
+            // Llamada a la función updateData()
+            $output = updateData($tabla, $data_set, $values, $id);
         }
-        else if($action == 'delete'){
+        else if(strtolower($action) == 'eliminar'){
             $output = deleteData($tabla, $id);
         }
         echo json_encode($output);
